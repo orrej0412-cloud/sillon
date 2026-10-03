@@ -61,6 +61,7 @@ Pour une mise à jour du code : renvoie les fichiers modifiés sur GitHub (étap
 - **Accueil** : reprendre l'écoute là où tu t'es arrêté, écoutés récemment, playlists, ajouts récents.
 - **Bibliothèque** : recherche (titre, artiste, album, sans tenir compte des accents), tri, vues Titres / Albums / Artistes.
 - **Menu ⋯ d'un titre** : lire ensuite, file d'attente, ajouter à une playlist, favori, lire depuis le début, supprimer.
+- **Clips vidéo** (MP4, WebM, MOV) : importe-les comme des sons. Pendant la lecture, le clip tourne en plein écran derrière le lecteur et en fond atténué dans le reste de l'appli. Une image du clip sert de pochette.
 - **Mini-lecteur** en bas ; touche-le pour le **lecteur plein écran** (glisse vers le bas ou bouton retour pour le fermer).
 - **Aléatoire** et **répétition** (liste → titre → désactivé) dans le lecteur.
 - La position de chaque titre est mémorisée automatiquement (barre violette sous le titre).

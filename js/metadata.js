@@ -251,24 +251,44 @@ async function parseMp4(file) {
   return out;
 }
 
-/* ---------- Durée ---------- */
+/* ---------- Durée, présence d'image et vignette (clips) ---------- */
 
-export function probeDuration(file) {
+export function probeMedia(file) {
   return new Promise(resolve => {
-    const a = document.createElement('audio');
+    const v = document.createElement('video');
     const url = URL.createObjectURL(file);
     let done = false;
-    const finish = d => {
+    const finish = (out = {}) => {
       if (done) return;
       done = true;
       clearTimeout(timer);
       URL.revokeObjectURL(url);
-      resolve(Number.isFinite(d) ? d : 0);
+      v.removeAttribute('src');
+      v.load();
+      resolve({ duration: Number.isFinite(v.duration) ? v.duration : 0, hasVideo: false, poster: null, ...out });
     };
-    const timer = setTimeout(() => finish(0), 8000);
-    a.preload = 'metadata';
-    a.onloadedmetadata = () => finish(a.duration);
-    a.onerror = () => finish(0);
-    a.src = url;
+    const timer = setTimeout(() => finish(), 12000);
+    v.muted = true;
+    v.playsInline = true;
+    v.preload = 'auto';
+    v.onerror = () => finish({ duration: 0 });
+    v.onloadedmetadata = () => {
+      if (!v.videoWidth) return finish();
+      // Clip : on capture une image vers 20 % de la durée pour servir de pochette.
+      v.onseeked = () => {
+        const scale = Math.min(1, 640 / v.videoWidth);
+        const c = document.createElement('canvas');
+        c.width = Math.round(v.videoWidth * scale);
+        c.height = Math.round(v.videoHeight * scale);
+        try {
+          c.getContext('2d').drawImage(v, 0, 0, c.width, c.height);
+          c.toBlob(poster => finish({ hasVideo: true, poster }), 'image/jpeg', 0.85);
+        } catch {
+          finish({ hasVideo: true });
+        }
+      };
+      v.currentTime = Math.min((v.duration || 0) * 0.2, 30);
+    };
+    v.src = url;
   });
 }

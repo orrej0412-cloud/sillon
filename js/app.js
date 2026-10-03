@@ -50,6 +50,7 @@ function navigate(hash) {
     // Ferme le lecteur sans revenir en arrière dans l'historique.
     fpOpen = false;
     els.fp.classList.remove('open');
+    document.body.classList.remove('fp-open');
     els.fp.setAttribute('aria-hidden', 'true');
     history.replaceState(null, '');
   }
@@ -395,6 +396,7 @@ function updateTrackUI() {
   const t = player.current();
   els.mini.hidden = !t;
   document.body.classList.toggle('has-track', !!t);
+  document.body.classList.toggle('has-clip', !!t?.video);
   if (!t) {
     if (fpOpen) closePlayer();
     document.title = 'Sillon';
@@ -504,6 +506,7 @@ function openPlayer() {
   if (!player.current() || fpOpen) return;
   fpOpen = true;
   els.fp.classList.add('open');
+  document.body.classList.add('fp-open');
   els.fp.setAttribute('aria-hidden', 'false');
   history.pushState({ fp: true }, '');
   $('[data-action="close-player"]', els.fp).focus({ preventScroll: true });
@@ -513,6 +516,7 @@ function closePlayer({ viaHistory = false } = {}) {
   if (!fpOpen) return;
   fpOpen = false;
   els.fp.classList.remove('open');
+  document.body.classList.remove('fp-open');
   els.fp.setAttribute('aria-hidden', 'true');
   if (!viaHistory && history.state?.fp) history.back();
 }
@@ -562,6 +566,9 @@ lib.onChange(type => {
 window.addEventListener('hashchange', render);
 
 $$('[data-icon]').forEach(el => el.insertAdjacentHTML('afterbegin', icon(el.dataset.icon)));
+
+// L'élément de lecture vit en permanence dans le calque de fond : le retirer du document couperait le son.
+$('#clip-layer').appendChild(player.el);
 
 async function init() {
   await lib.load();

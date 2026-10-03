@@ -59,7 +59,25 @@ svg { width: 22px; height: 22px; display: block; flex: none; }
 
 /* ---------- Structure ---------- */
 
-.app { display: grid; height: 100%; grid-template-columns: minmax(0, 1fr); grid-template-rows: minmax(0, 1fr) auto; }
+/* Clip vidéo : atténué derrière l'appli, plein écran derrière le lecteur. */
+.clip-layer {
+  position: fixed; inset: 0; z-index: 0; pointer-events: none;
+  background: #000; opacity: 0;
+  transition: opacity 0.9s var(--ease);
+}
+.clip-layer video { display: block; width: 100%; height: 100%; object-fit: cover; }
+.has-clip .clip-layer { opacity: 0.2; }
+.has-clip.fp-open .clip-layer { z-index: 49; opacity: 1; }
+.has-clip .fp { background: transparent; }
+.has-clip .fp-bg { display: none; }
+.has-clip .fp-art { visibility: hidden; }
+.has-clip .fp::before {
+  content: ""; position: absolute; inset: 0; pointer-events: none;
+  background: linear-gradient(180deg, rgba(11, 12, 16, 0.6) 0%, rgba(11, 12, 16, 0) 18%, rgba(11, 12, 16, 0) 42%, rgba(11, 12, 16, 0.88) 74%, var(--bg) 100%);
+}
+.has-clip .fp-queue { background: rgba(11, 12, 16, 0.78); border-radius: var(--r-md); padding-block: 8px; }
+
+.app { position: relative; z-index: 1; display: grid; height: 100%; grid-template-columns: minmax(0, 1fr); grid-template-rows: minmax(0, 1fr) auto; }
 .sidebar { display: none; }
 .main {
   grid-row: 1;
@@ -247,7 +265,8 @@ body:not(.is-playing) .eq i { animation-play-state: paused; }
 .num .eq { background: none; padding: 12px 13px; }
 .cur .num b { visibility: hidden; }
 .fav-dot { color: var(--accent); }
-.fav-dot svg { width: 12px; height: 12px; }
+.fav-dot svg, .clip-tag svg { width: 12px; height: 12px; }
+.clip-tag { color: var(--fg-2); }
 
 /* ---------- Bibliothèque ---------- */
 
@@ -573,6 +592,11 @@ body:not(.is-playing) .blob { animation-play-state: paused; }
 
   .fp-inner { max-width: 1080px; display: grid; grid-template-columns: minmax(0, 1.1fr) minmax(0, 1fr); grid-template-rows: auto minmax(0, 1fr) auto auto auto auto minmax(0, 1fr); column-gap: 56px; row-gap: 18px; padding: 26px 48px 40px; }
   .fp-head { grid-column: 1 / -1; }
+  .has-clip .fp::before {
+    background:
+      linear-gradient(90deg, rgba(11, 12, 16, 0) 38%, rgba(11, 12, 16, 0.86) 72%),
+      linear-gradient(180deg, rgba(11, 12, 16, 0.55) 0%, rgba(11, 12, 16, 0) 16%);
+  }
   .fp-body { grid-row: 2 / 8; }
   .fp-art { width: min(100%, 64vh, 560px); }
   .fp-meta { grid-column: 2; grid-row: 3; }

@@ -1,6 +1,6 @@
 // Bibliothèque : titres, pochettes, playlists, favoris. Tout est en mémoire + IndexedDB.
 import * as db from './db.js';
-import { readTags, probeDuration } from './metadata.js';
+import { readTags, probeMedia } from './metadata.js';
 import { uid, norm, matches } from './util.js';
 
 const tracks = new Map();
@@ -109,14 +109,15 @@ export function artistTracks(name) {
 
 /* ---------- Import ---------- */
 
-const AUDIO_EXT = /\.(mp3|wav|flac|m4a|aac|ogg|oga|opus|weba|webm|mp4|aiff?)$/i;
+const MEDIA_EXT = /\.(mp3|wav|flac|m4a|aac|ogg|oga|opus|weba|webm|mp4|m4v|mov|aiff?)$/i;
 const MIME = {
-  mp3: 'audio/mpeg', wav: 'audio/wav', flac: 'audio/flac', m4a: 'audio/mp4', mp4: 'audio/mp4',
-  aac: 'audio/aac', ogg: 'audio/ogg', oga: 'audio/ogg', opus: 'audio/ogg', weba: 'audio/webm',
-  webm: 'audio/webm', aif: 'audio/aiff', aiff: 'audio/aiff',
+  mp3: 'audio/mpeg', wav: 'audio/wav', flac: 'audio/flac', m4a: 'audio/mp4', mp4: 'video/mp4',
+  m4v: 'video/mp4', mov: 'video/quicktime', aac: 'audio/aac', ogg: 'audio/ogg', oga: 'audio/ogg',
+  opus: 'audio/ogg', weba: 'audio/webm', webm: 'video/webm', aif: 'audio/aiff', aiff: 'audio/aiff',
 };
 
-export const isAudio = f => f.type.startsWith('audio/') || AUDIO_EXT.test(f.name);
+// Sons et clips vidéo : un clip est un titre comme un autre, avec une image en plus.
+export const isMedia = f => f.type.startsWith('audio/') || f.type.startsWith('video/') || MEDIA_EXT.test(f.name);
 
 // "01 - Artiste - Titre.mp3" -> { artist, title }
 function guessFromName(name) {
@@ -135,7 +136,7 @@ export async function importFiles(files, onProgress) {
   for (let i = 0; i < files.length; i++) {
     const f = files[i];
     onProgress?.(i + 1, files.length, f.name);
-    if (!isAudio(f)) { result.skipped++; continue; }
+    if (!isMedia(f)) { result.skipped++; continue; }
     const dupKey = `${f.name}|${f.size}`;
     if (seen.has(dupKey)) { result.duplicates++; continue; }
 
@@ -143,7 +144,10 @@ export async function importFiles(files, onProgress) {
       const tags = await readTags(f);
       const guess = guessFromName(f.name);
       const ext = (f.name.split('.').pop() || '').toLowerCase();
-      const mime = f.type || MIME[ext] || 'audio/mpeg';
+      const media = await probeMedia(f);
+      let mime = f.type || MIME[ext] || 'audio/mpeg';
+      if (media.hasVideo) mime = mime.replace(/^audio\//, 'video/');
+      else mime = mime.replace(/^video\//, 'audio/');
       const id = uid();
       const track = {
         id,
@@ -153,7 +157,8 @@ export async function importFiles(files, onProgress) {
         albumArtist: tags.albumArtist || '',
         trackNo: tags.track || 0,
         year: tags.year || '',
-        duration: await probeDuration(f),
+        duration: media.duration,
+        video: media.hasVideo,
         mime,
         fileName: f.name,
         size: f.size,
@@ -171,6 +176,9 @@ export async function importFiles(files, onProgress) {
       if (tags.picture?.data?.length) {
         track.coverId = sharedKey || `t:${id}`;
         if (!covers.has(track.coverId)) coverData = new Blob([tags.picture.data], { type: tags.picture.mime });
+      } else if (media.poster) {
+        track.coverId = `t:${id}`; // image tirée du clip
+        coverData = media.poster;
       } else if (sharedKey && covers.has(sharedKey)) {
         track.coverId = sharedKey;
       }

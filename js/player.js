@@ -1,10 +1,13 @@
-// Lecteur : un seul <audio>, une file d'attente, la mémoire de position et les contrôles système.
+// Lecteur : un seul élément <video> (il lit aussi les sons), une file d'attente,
+// la mémoire de position et les contrôles système. Pour un clip, l'image s'affiche en fond.
 import * as lib from './library.js';
 import * as db from './db.js';
 import { analyzeCover, placeholderRGB } from './art.js';
 
-const audio = new Audio();
+const audio = document.createElement('video');
 audio.preload = 'auto';
+audio.playsInline = true;
+audio.disablePictureInPicture = true;
 
 const state = {
   source: [],   // ordre d'origine de la liste lue

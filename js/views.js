@@ -42,7 +42,7 @@ function row(t, key, i, { num = false } = {}) {
     : coverHTML(t, 'sm', { eq: true });
   return `<div class="row" data-action="play-item" data-list="${key}" data-i="${i}" data-id="${t.id}" tabindex="0">
     ${lead}
-    <div class="meta"><div class="t">${esc(t.title)}</div><div class="a">${t.fav ? `<span class="fav-dot">${icon('heart-fill')}</span>` : ''}${esc(t.artist)}${t.album && !num ? ` · ${esc(t.album)}` : ''}</div>${resume}</div>
+    <div class="meta"><div class="t">${esc(t.title)}</div><div class="a">${t.fav ? `<span class="fav-dot">${icon('heart-fill')}</span>` : ''}${t.video ? `<span class="clip-tag" title="Clip vidéo">${icon('film')}</span>` : ''}${esc(t.artist)}${t.album && !num ? ` · ${esc(t.album)}` : ''}</div>${resume}</div>
     <span class="dur">${fmtTime(t.duration)}</span>
     <button class="ic" data-action="track-menu" data-id="${t.id}" data-list="${key}" data-i="${i}" aria-label="Options pour ${esc(t.title)}">${icon('more')}</button>
   </div>`;
@@ -94,7 +94,7 @@ function emptyLibrary() {
   return `<div class="empty hero-empty">
     <div class="vinyl" aria-hidden="true"><span></span></div>
     <h1 class="h1">Ta musique,<br>rien qu'à toi.</h1>
-    <p>Importe tes fichiers MP3, FLAC, WAV ou M4A. Ils sont copiés dans le stockage privé de l'application et ne quittent jamais cet appareil.</p>
+    <p>Importe tes fichiers MP3, FLAC, WAV ou M4A, et tes clips en MP4 : ils tournent en fond pendant l'écoute. Tout est copié dans le stockage privé de l'application et ne quitte jamais cet appareil.</p>
     <div class="actions center">
       <button class="btn primary" data-action="import">${icon('upload')}Importer des fichiers</button>
       <button class="btn desk" data-action="import-folder">${icon('folder')}Importer un dossier</button>
