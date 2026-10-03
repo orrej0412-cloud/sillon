@@ -47,4 +47,5 @@ function hsl(h, s, l) {
   return [f(0), f(8), f(4)].map(v => Math.round(v * 255));
 }
 
-export const placeholderRGB = t => hsl(hue(t?.album || t?.title || ''), 0.55, 0.58);
+// Même gamme violet-bleu que les pochettes de remplacement en CSS (.cover.ph).
+export const placeholderRGB = t => hsl(222 + hue(t?.album || t?.title || '') / 5, 0.6, 0.62);

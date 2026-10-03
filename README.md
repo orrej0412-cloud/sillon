@@ -63,7 +63,7 @@ Pour une mise à jour du code : renvoie les fichiers modifiés sur GitHub (étap
 - **Menu ⋯ d'un titre** : lire ensuite, file d'attente, ajouter à une playlist, favori, lire depuis le début, supprimer.
 - **Mini-lecteur** en bas ; touche-le pour le **lecteur plein écran** (glisse vers le bas ou bouton retour pour le fermer).
 - **Aléatoire** et **répétition** (liste → titre → désactivé) dans le lecteur.
-- La position de chaque titre est mémorisée automatiquement (barre orange sous le titre).
+- La position de chaque titre est mémorisée automatiquement (barre violette sous le titre).
 - Écran verrouillé et notification : lecture/pause, précédent/suivant, barre de progression.
 - Raccourcis clavier (ordinateur) : Espace = lecture/pause, ←/→ = ±10 s, Maj+←/→ = titre précédent/suivant.
 - Ordinateur : glisser-déposer de fichiers ou d'un dossier entier.

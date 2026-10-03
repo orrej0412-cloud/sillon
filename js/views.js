@@ -126,9 +126,8 @@ function home() {
 
   return `
   <header class="page-h">
-    <p class="eyebrow">${esc(date)}</p>
     <h1 class="h1">${greeting()}</h1>
-    <p class="sub">${plural(all.length, 'titre', 'titres')} · ${fmtTotal(totalOf(all))} de musique sur cet appareil</p>
+    <p class="sub"><span class="cap">${esc(date)}</span> · ${plural(all.length, 'titre', 'titres')} · ${fmtTotal(totalOf(all))} de musique</p>
     <div class="actions">
       <button class="btn primary" data-action="play-list" data-list="all">${icon('play')}Tout lire</button>
       <button class="btn" data-action="shuffle-list" data-list="all">${icon('shuffle')}Aléatoire</button>
@@ -201,9 +200,8 @@ function albumView(key) {
   <header class="hero">
     ${coverHTML(a.tracks.find(t => lib.coverOf(t)) || a.tracks[0], 'hero-cover')}
     <div class="hero-txt">
-      <p class="eyebrow">Album</p>
       <h1 class="h1">${esc(a.name)}</h1>
-      <p class="sub"><a class="ulink" href="#/artist/${encodeURIComponent(a.artist)}">${esc(a.artist)}</a>${a.year ? ` · ${esc(a.year)}` : ''} · ${plural(a.tracks.length, 'titre', 'titres')} · ${fmtTotal(totalOf(a.tracks))}</p>
+      <p class="sub">Album de <a class="ulink" href="#/artist/${encodeURIComponent(a.artist)}">${esc(a.artist)}</a>${a.year ? ` · ${esc(a.year)}` : ''} · ${plural(a.tracks.length, 'titre', 'titres')} · ${fmtTotal(totalOf(a.tracks))}</p>
       ${playActions('album')}
     </div>
   </header>
@@ -219,9 +217,8 @@ function artistView(name) {
   <header class="hero">
     ${coverHTML(ts.find(t => lib.coverOf(t)) || ts[0], 'hero-cover round')}
     <div class="hero-txt">
-      <p class="eyebrow">Artiste</p>
       <h1 class="h1">${esc(ts[0].artist)}</h1>
-      <p class="sub">${plural(ts.length, 'titre', 'titres')}${albums ? ` · ${plural(albums, 'album', 'albums')}` : ''} · ${fmtTotal(totalOf(ts))}</p>
+      <p class="sub">Artiste · ${plural(ts.length, 'titre', 'titres')}${albums ? ` · ${plural(albums, 'album', 'albums')}` : ''} · ${fmtTotal(totalOf(ts))}</p>
       ${playActions('artist')}
     </div>
   </header>
@@ -259,9 +256,8 @@ function playlistView(id) {
   <header class="hero">
     ${mosaic(ts, 'hero-cover', p.name)}
     <div class="hero-txt">
-      <p class="eyebrow">Playlist</p>
       <h1 class="h1">${esc(p.name)}</h1>
-      <p class="sub">${plural(ts.length, 'titre', 'titres')}${ts.length ? ` · ${fmtTotal(totalOf(ts))}` : ''}</p>
+      <p class="sub">Playlist · ${plural(ts.length, 'titre', 'titres')}${ts.length ? ` · ${fmtTotal(totalOf(ts))}` : ''}</p>
       ${ts.length ? playActions('pl', tools) : `<div class="actions">${tools}</div>`}
     </div>
   </header>
@@ -275,7 +271,6 @@ function favoritesView() {
   <header class="hero">
     <div class="cover hero-cover fav-cover">${icon('heart-fill')}</div>
     <div class="hero-txt">
-      <p class="eyebrow">Collection</p>
       <h1 class="h1">Favoris</h1>
       <p class="sub">${plural(favs.length, 'titre', 'titres')}${favs.length ? ` · ${fmtTotal(totalOf(favs))}` : ''}</p>
       ${favs.length ? playActions('fav') : ''}
