@@ -1,6 +1,6 @@
 // Service worker : rend l'application installable et utilisable hors ligne.
 // Les musiques ne passent jamais par ici (elles sont lues depuis IndexedDB).
-const VERSION = 'sillon-v3';
+const VERSION = 'sillon-v4';
 const SHELL = [
   './', 'index.html', 'manifest.webmanifest', 'css/app.css',
   'js/app.js', 'js/views.js', 'js/player.js', 'js/library.js', 'js/metadata.js',
@@ -35,9 +35,11 @@ self.addEventListener('fetch', e => {
     return;
   }
 
-  // Fichiers de l'appli : réseau d'abord (mises à jour immédiates), cache si hors ligne.
+  // Fichiers de l'appli : réseau d'abord, en revalidant toujours auprès du serveur
+  // (sinon le cache HTTP de GitHub Pages peut servir une ancienne version pendant 10 min),
+  // cache si hors ligne.
   if (url.origin === location.origin) {
-    e.respondWith(fetch(request).then(res => {
+    e.respondWith(fetch(request, { cache: 'no-cache' }).then(res => {
       if (res.ok) {
         const copy = res.clone();
         caches.open(VERSION).then(c => c.put(request, copy));
