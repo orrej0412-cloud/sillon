@@ -24,6 +24,8 @@ export function analyzeCover(key, blob) {
   return job;
 }
 
+export const forgetCover = key => cache.delete(key);
+
 function dominant(px) {
   let r = 0, g = 0, b = 0, w = 0;
   for (let i = 0; i < px.length; i += 4) {

@@ -23,6 +23,7 @@
       <a class="brand" href="#/home"><span class="brand-mark" aria-hidden="true"></span>Sillon</a>
       <nav class="side-nav" aria-label="Navigation principale">
         <a href="#/home" data-tab="home" data-icon="home">Accueil</a>
+        <a href="#/recognize" data-tab="recognize" data-icon="mic">Reconnaître</a>
         <a href="#/library" data-tab="library" data-icon="library">Ma bibliothèque</a>
         <a href="#/playlists" data-tab="playlists" data-icon="playlist">Playlists</a>
         <a href="#/favorites" data-tab="favorites" data-icon="heart">Favoris</a>
@@ -69,6 +70,7 @@
     <nav class="tabbar" aria-label="Navigation principale">
       <a href="#/home" data-tab="home" data-icon="home"><span>Accueil</span></a>
       <a href="#/library" data-tab="library" data-icon="library"><span>Bibliothèque</span></a>
+      <a href="#/recognize" data-tab="recognize" data-icon="mic" class="tab-rec"><span>Reconnaître</span></a>
       <a href="#/playlists" data-tab="playlists" data-icon="playlist"><span>Playlists</span></a>
       <a href="#/favorites" data-tab="favorites" data-icon="heart"><span>Favoris</span></a>
     </nav>
@@ -120,5 +122,6 @@
   <div class="dropzone" id="dropzone" hidden><div>Dépose tes sons et clips ici</div></div>
   <input type="file" id="file-input" accept="audio/*,video/*,.mp3,.wav,.flac,.m4a,.aac,.ogg,.opus,.mp4,.m4v,.mov,.webm" multiple hidden>
   <input type="file" id="folder-input" webkitdirectory multiple hidden>
+  <input type="file" id="rec-file-input" accept="audio/*,video/*,.mp3,.wav,.flac,.m4a,.aac,.ogg,.opus,.mp4,.webm" hidden>
 </body>
 </html>

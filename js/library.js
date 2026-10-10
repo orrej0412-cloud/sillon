@@ -2,6 +2,7 @@
 import * as db from './db.js';
 import { readTags, probeMedia } from './metadata.js';
 import { uid, norm, matches } from './util.js';
+import { forgetCover } from './art.js';
 
 const tracks = new Map();
 const playlists = new Map();
@@ -49,6 +50,18 @@ export const toggleFav = id => {
   return updateTrack(id, { fav: !t.fav, favAt: Date.now() });
 };
 
+// Remplace la pochette d'un seul titre (ex. pochette trouvée par la reconnaissance).
+export async function setTrackCover(id, blob) {
+  const t = tracks.get(id);
+  if (!t || !blob) return;
+  const coverId = `t:${id}`;
+  await db.put('covers', blob, coverId);
+  if (covers.has(coverId)) URL.revokeObjectURL(covers.get(coverId));
+  covers.set(coverId, URL.createObjectURL(blob));
+  forgetCover(coverId);
+  await updateTrack(id, { coverId });
+}
+
 export const favorites = () => allTracks().filter(t => t.fav).sort((a, b) => (b.favAt || 0) - (a.favAt || 0));
 
 export const search = q => allTracks().filter(t => matches(q, `${t.title} ${t.artist} ${t.album}`));
@@ -69,6 +82,19 @@ export async function deleteTrack(id) {
     covers.delete(t.coverId);
   }
   emit('tracks');
+}
+
+// Recalcule les durées manquantes (titres importés pendant qu'un bug les mettait à 0).
+export async function repairDurations() {
+  let fixed = 0;
+  for (const t of allTracks().filter(x => !x.duration)) {
+    const blob = await db.get('files', t.id);
+    if (!blob) continue;
+    const { duration } = await probeMedia(blob);
+    if (duration) { await updateTrack(t.id, { duration }, true); fixed++; }
+  }
+  if (fixed) emit('tracks');
+  return fixed;
 }
 
 /* ---------- Albums & artistes ---------- */
@@ -129,16 +155,17 @@ function guessFromName(name) {
     : { title: base };
 }
 
+// Retourne { added, duplicates, skipped, ids (nouveaux titres), existing (titres déjà présents) }.
 export async function importFiles(files, onProgress) {
-  const seen = new Set(allTracks().map(t => `${t.fileName}|${t.size}`));
-  const result = { added: 0, duplicates: 0, skipped: 0 };
+  const seen = new Map(allTracks().map(t => [`${t.fileName}|${t.size}`, t.id]));
+  const result = { added: 0, duplicates: 0, skipped: 0, ids: [], existing: [] };
 
   for (let i = 0; i < files.length; i++) {
     const f = files[i];
     onProgress?.(i + 1, files.length, f.name);
     if (!isMedia(f)) { result.skipped++; continue; }
     const dupKey = `${f.name}|${f.size}`;
-    if (seen.has(dupKey)) { result.duplicates++; continue; }
+    if (seen.has(dupKey)) { result.duplicates++; result.existing.push(seen.get(dupKey)); continue; }
 
     try {
       const tags = await readTags(f);
@@ -188,8 +215,9 @@ export async function importFiles(files, onProgress) {
       await db.addTrack(track, data, coverData);
       tracks.set(id, track);
       if (coverData) covers.set(track.coverId, URL.createObjectURL(coverData));
-      seen.add(dupKey);
+      seen.set(dupKey, id);
       result.added++;
+      result.ids.push(id);
       if (result.added % 5 === 0) emit('tracks');
     } catch (err) {
       console.error('Import impossible :', f.name, err);

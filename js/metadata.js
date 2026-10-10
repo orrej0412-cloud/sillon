@@ -262,10 +262,12 @@ export function probeMedia(file) {
       if (done) return;
       done = true;
       clearTimeout(timer);
+      // Lire la durée AVANT de vider l'élément (sinon elle redevient NaN).
+      const result = { duration: Number.isFinite(v.duration) ? v.duration : 0, hasVideo: false, poster: null, ...out };
       URL.revokeObjectURL(url);
       v.removeAttribute('src');
       v.load();
-      resolve({ duration: Number.isFinite(v.duration) ? v.duration : 0, hasVideo: false, poster: null, ...out });
+      resolve(result);
     };
     const timer = setTimeout(() => finish(), 12000);
     v.muted = true;

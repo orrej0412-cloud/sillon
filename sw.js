@@ -1,10 +1,11 @@
 // Service worker : rend l'application installable et utilisable hors ligne.
 // Les musiques ne passent jamais par ici (elles sont lues depuis IndexedDB).
-const VERSION = 'sillon-v4';
+const VERSION = 'sillon-v5';
 const SHELL = [
   './', 'index.html', 'manifest.webmanifest', 'css/app.css',
   'js/app.js', 'js/views.js', 'js/player.js', 'js/library.js', 'js/metadata.js',
   'js/db.js', 'js/art.js', 'js/icons.js', 'js/util.js',
+  'js/recognize-view.js', 'js/capture.js', 'js/api.js', 'js/sources.js', 'js/match.js',
   'icons/icon.svg', 'icons/icon-192.png', 'icons/icon-512.png', 'icons/icon-maskable-512.png',
 ];
 

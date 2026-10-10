@@ -2,6 +2,7 @@
 import * as lib from './library.js';
 import * as player from './player.js';
 import * as views from './views.js';
+import * as rec from './recognize-view.js';
 import { icon } from './icons.js';
 import { esc, fmtTime, fmtBytes, plural } from './util.js';
 
@@ -24,11 +25,11 @@ function parseRoute() {
   return i < 0 ? { name: h || 'home', arg: null } : { name: h.slice(0, i), arg: decodeURIComponent(h.slice(i + 1)) };
 }
 
-const TAB_OF = { home: 'home', library: 'library', album: 'library', artist: 'library', playlists: 'playlists', playlist: 'playlists', favorites: 'favorites' };
+const TAB_OF = { home: 'home', recognize: 'recognize', library: 'library', album: 'library', artist: 'library', playlists: 'playlists', playlist: 'playlists', favorites: 'favorites' };
 
 function render() {
   const r = parseRoute();
-  els.view.innerHTML = views.render(r, ui);
+  els.view.innerHTML = r.name === 'recognize' ? rec.render() : views.render(r, ui);
   if (location.hash !== lastRoute) {
     els.view.classList.remove('enter');
     void els.view.offsetWidth;
@@ -99,6 +100,7 @@ document.addEventListener('click', e => {
     case 'playlist-add': pickTracks(id); break;
     case 'playlist-rename': renamePlaylist(id); break;
     case 'playlist-delete': deletePlaylist(id); break;
+    default: if (action.startsWith('rec-')) rec.handleAction(action, el);
   }
 });
 
@@ -210,6 +212,7 @@ async function trackMenu(id, listKey) {
       { key: 'queue', icon: 'queue', label: "Ajouter à la file d'attente" },
       { key: 'playlist', icon: 'list-plus', label: 'Ajouter à une playlist' },
       { key: 'fav', icon: t.fav ? 'heart-fill' : 'heart', label: t.fav ? 'Retirer des favoris' : 'Ajouter aux favoris' },
+      { key: 'identify', icon: 'mic', label: 'Identifier ce titre' },
       lib.canResume(t) && { key: 'restart', icon: 'restart', label: 'Lire depuis le début', meta: `arrêté à ${fmtTime(t.position)}` },
       t.album && { key: 'album', icon: 'disc', label: "Voir l'album" },
       { key: 'artist', icon: 'user', label: "Voir l'artiste" },
@@ -222,6 +225,7 @@ async function trackMenu(id, listKey) {
     case 'queue': player.addToQueue([id]); toast("Ajouté à la file d'attente"); break;
     case 'playlist': choosePlaylist([id]); break;
     case 'fav': await lib.toggleFav(id); toast(t.fav ? 'Ajouté aux favoris' : 'Retiré des favoris'); break;
+    case 'identify': rec.identifyTrack(id); break;
     case 'restart': {
       await lib.updateTrack(id, { position: 0 }, true);
       if (player.current()?.id === id) player.seekTo(0);
@@ -573,12 +577,18 @@ $('#clip-layer').appendChild(player.el);
 async function init() {
   await lib.load();
   await player.restore();
+  await rec.init({
+    rerender: () => { if (parseRoute().name === 'recognize') render(); },
+    toast,
+    navigate,
+  });
   render();
   updateTrackUI();
   updatePlayState();
   updateModes();
   updateVolume();
   refreshStorage();
+  setTimeout(() => lib.repairDurations().catch(() => {}), 3000);
 }
 
 init().catch(err => {

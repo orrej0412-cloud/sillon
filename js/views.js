@@ -131,6 +131,7 @@ function home() {
     <div class="actions">
       <button class="btn primary" data-action="play-list" data-list="all">${icon('play')}Tout lire</button>
       <button class="btn" data-action="shuffle-list" data-list="all">${icon('shuffle')}Aléatoire</button>
+      <a class="btn ghost" href="#/recognize">${icon('mic')}Reconnaître</a>
       <button class="btn ghost" data-action="import">${icon('upload')}Importer</button>
     </div>
   </header>

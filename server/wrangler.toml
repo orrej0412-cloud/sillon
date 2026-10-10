@@ -1,0 +1,8 @@
+# Déploiement alternatif en ligne de commande : npx wrangler deploy (depuis le dossier server)
+# Les secrets se règlent avec : npx wrangler secret put APP_SECRET   (idem AUDD_API_TOKEN, JAMENDO_CLIENT_ID)
+name = "sillon-api"
+main = "worker.js"
+compatibility_date = "2025-01-01"
+
+[vars]
+ALLOWED_ORIGINS = "https://orrej0412-cloud.github.io"
